@@ -1,0 +1,24 @@
+Base revision: 22af1f07bf05169dee6a9e4feb4099dc15ae9aa4[refs/heads/master]
+--- docs/contributing.md
++++ docs/contributing.md
+
+ 
+ * If you're creating a small fix or patch to an existing feature, just a simple
+   test will do. Please stay in the confines of the current test suite and use
+-  [Shoulda](http://github.com/thoughtbot/shoulda/tree/master) and
+-  [RR](http://github.com/btakita/rr/tree/master).
++  [Shoulda](https://github.com/thoughtbot/shoulda/tree/master) and
++  [RR](https://github.com/btakita/rr/tree/master).
+ * If it's a brand new feature, make sure to create a new
+   [Cucumber](https://github.com/cucumber/cucumber/) feature and reuse steps
+   where appropriate. Also, whipping up some documentation in your fork's `site`
+ All documentation pull requests should be directed at `master`.  Pull
+ requests directed at another branch will not be accepted.
+ 
+-The [Jekyll wiki]({{ site.repository }}/wiki) on GitHub 
+-can be freely updated without a pull request as all 
++The [Jekyll wiki]({{ site.repository }}/wiki) on GitHub
++can be freely updated without a pull request as all
+ GitHub users have access.
+ 
+ If you want to add your plugin to the [list of plugins](/docs/plugins/#available_plugins),

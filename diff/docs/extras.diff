@@ -1,0 +1,40 @@
+Base revision: 22af1f07bf05169dee6a9e4feb4099dc15ae9aa4[refs/heads/master]
+--- docs/extras.md
++++ docs/extras.md
+
+ ## LaTeX Support
+ 
+ Maruku comes with optional support for LaTeX to PNG rendering via blahtex
+-(Version 0.6) which must be in your `$PATH` along with `dvips`. If you need
+-Maruku to not assume a fixed location for `dvips`, check out [Remi’s Maruku
+-fork](http://github.com/remi/maruku).
++(Version 0.6) which must be in your `$PATH` along with `dvips`.
+ 
+ ## Alternative Markdown Processors
+ 
+ 
+ ### RDiscount
+ 
+-If you prefer to use [RDiscount](http://github.com/rtomayko/rdiscount) instead
+-of [Maruku](http://github.com/bhollis/maruku) for Markdown, just make sure you have
++If you prefer to use [RDiscount](https://github.com/rtomayko/rdiscount) instead
++of [Maruku](https://github.com/bhollis/maruku) for Markdown, just make sure you have
+ it installed:
+ 
+ {% highlight bash %}
+ 
+ ### Kramdown
+ 
+-You can also use [Kramdown](http://kramdown.rubyforge.org/) instead of Maruku
++You can also use [Kramdown](http://kramdown.gettalong.org/) instead of Maruku
+ for Markdown. Make sure that Kramdown is installed:
+ 
+ {% highlight bash %}
+ Kramdown has various options for customizing the HTML output. The
+ [Configuration](/docs/configuration/) page lists the default options used by
+ Jekyll. A complete list of options is also available on the [Kramdown
+-website](http://kramdown.rubyforge.org/options.html).
++website](http://kramdown.gettalong.org/options.html).
+ 
+ ### User-Defined
+ 
