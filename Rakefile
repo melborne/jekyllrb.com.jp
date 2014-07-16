@@ -1,4 +1,7 @@
 require "octokit"
+require "dotenv"
+
+Dotenv.load
 
 GITHUB_USER = 'jekyll'
 GITHUB_REPOSITORY = 'jekyll'
@@ -136,3 +139,38 @@ task :jekyll do
     exit 1
   end
 end
+
+desc "Create issue for file(s)"
+task :create_issue do
+  host = "https://github.com"
+  repo = ENV['MYREPO']
+  revision = "blob/#{ENV['MYREVISION']}"
+  path = ENV['path']
+
+  revision_line = File.open(path, &:gets) #read the first line
+
+  if base_rev = revision_line.match(/^Base revision:\s*([a-z0-9]+)/){ $1 }
+    _, *dir, file = path.split('/')
+    file = File.join(*dir, File.basename(file, '.*')) + '.md'
+    file_link = File.join(host, repo, revision, file)
+    path_link = File.join(host, repo, revision, path)
+    original_rev = File.join(host, GITHUB_USER, GITHUB_REPOSITORY, 'commit', base_rev)
+    label = 'Original Updated'
+    title = "Need to follow up!: #{file}"
+    body =<<-EOS
+Original file updated. Need to update our translation:
+
+  File: #{file_link}
+  Diff: #{path_link}
+  Base Revision: #{original_rev}
+    EOS
+
+    Octokit.configure { |c| c.access_token = ENV['TOKEN'] }
+    Octokit.create_issue(repo, title, body, labels:label)
+    puts "Issue created successfully for #{file}"
+    exit(0)
+  else
+    p :no
+  end
+end
+
