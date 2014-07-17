@@ -140,37 +140,64 @@ task :jekyll do
   end
 end
 
-desc "Create issue for file(s)"
-task :create_issue do
+desc "Create issue for a file"
+task :create_issue, "path"
+task :create_issue do |x, args|
+  path = args.path || fail("A file path required: e.g. create_issue['diff/docs/index.diff']")
+
   host = "https://github.com"
-  repo = ENV['MYREPO']
-  revision = "blob/#{ENV['MYREVISION']}"
-  path = ENV['path']
+  myrepo = ENV['MYREPO']
+  myrevision = ENV['MYREVISION']
 
-  revision_line = File.open(path, &:gets) #read the first line
+  title, body, label =
+    case path
+    when /diff$/
+      build_update_issue_content(host, myrepo, myrevision, path)
+    when /(md|markdown)$/
+      # build_translate_issue_content(host, myrepo, myrevision, path)
+    else
+      fail "Only accept 'diff' or 'markdown'"
+    end
 
-  if base_rev = revision_line.match(/^Base revision:\s*([a-z0-9]+)/){ $1 }
-    _, *dir, file = path.split('/')
-    file = File.join(*dir, File.basename(file, '.*')) + '.md'
-    file_link = File.join(host, repo, revision, file)
-    path_link = File.join(host, repo, revision, path)
-    original_rev = File.join(host, GITHUB_USER, GITHUB_REPOSITORY, 'commit', base_rev)
-    label = 'Original Updated'
-    title = "Need to follow up!: #{file}"
-    body =<<-EOS
-Original file updated. Need to update our translation:
-
-  File: #{file_link}
-  Diff: #{path_link}
-  Base Revision: #{original_rev}
-    EOS
-
-    Octokit.configure { |c| c.access_token = ENV['TOKEN'] }
-    Octokit.create_issue(repo, title, body, labels:label)
-    puts "Issue created successfully for #{file}"
-    exit(0)
-  else
-    p :no
-  end
+  Octokit.configure { |c| c.access_token = ENV['TOKEN'] }
+  Octokit.create_issue(myrepo, title, body, labels:label)
+  puts "Issue created successfully for #{path}"
+  exit(0)
 end
 
+def build_update_issue_content(host, repo, revision, path)
+  repo_diff_file_link = File.join(host, repo, 'blob', revision, path)
+  repo_md_file_link = build_repo_file_link(host, repo, revision, path, '.md')
+  original_rev_link =
+    if base_rev = read_base_revision(path)
+      File.join(host, GITHUB_USER, GITHUB_REPOSITORY, 'commit', base_rev)
+    else
+      ''
+    end
+  label = 'Original Updated'
+  title = "Need to update! #{File.basename(repo_md_file_link)}"
+  body =<<-EOS
+Original file revised. Need to update our translation:
+
+  Diff: #{repo_diff_file_link}
+  File: #{repo_md_file_link}
+  Base Revision: #{original_rev_link}
+    EOS
+  return title, body, label
+end
+
+def build_translate_issue_content(host, repo, revision, path)
+  
+end
+
+def build_repo_file_link(host, repo, revision, path, ext)
+  _, *dir, file = path.split('/')
+  file = File.basename(file, '.*') + ext
+  File.join(host, repo, "blob", revision, *dir, file)
+end
+
+def read_base_revision(path)
+  rev_re = /^(?:B|b)ase.revision:\s*([a-z0-9]+)/
+  md = File.read(path).match(rev_re)
+  md ? md[1] : nil
+end
