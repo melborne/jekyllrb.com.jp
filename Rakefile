@@ -154,7 +154,7 @@ task :create_issue do |x, args|
     when /diff$/
       build_update_issue_content(host, myrepo, myrevision, path)
     when /(md|markdown)$/
-      # build_translate_issue_content(host, myrepo, myrevision, path)
+      build_new_translation_issue_content(host, myrepo, myrevision, path)
     else
       fail "Only accept 'diff' or 'markdown'"
     end
@@ -182,12 +182,27 @@ Original file revised. Need to update our translation:
   Diff: #{repo_diff_file_link}
   File: #{repo_md_file_link}
   Base Revision: #{original_rev_link}
-    EOS
+  EOS
   return title, body, label
 end
 
-def build_translate_issue_content(host, repo, revision, path)
-  
+def build_new_translation_issue_content(host, repo, revision, path)
+  repo_new_file_link = File.join(host, repo, 'blob', revision, path)
+  original_rev_link =
+    if base_rev = read_base_revision(path)
+      File.join(host, GITHUB_USER, GITHUB_REPOSITORY, 'commit', base_rev)
+    else
+      ''
+    end
+  label = 'Original Created'
+  title = "Need to translate! #{File.basename(repo_new_file_link)}"
+  body = <<-EOS
+Original file created. Need to translate:
+
+  File: #{repo_new_file_link}
+  Base Revision: #{original_rev_link}
+  EOS
+  return title, body, label
 end
 
 def build_repo_file_link(host, repo, revision, path, ext)
