@@ -144,7 +144,13 @@ end
 desc "Create issue for a file"
 task :create_issue, "path"
 task :create_issue do |x, args|
-  path = args.path || fail("A file path required: e.g. create_issue['diff/docs/index.diff']")
+  path = args.path
+  if path.nil?
+    fail "A file path required: e.g. create_issue['diff/docs/index.diff']"
+  elsif !File.exist?(path)
+    fail "File NotFound: #{path}"
+  end
+
   myrepo = ENV['MYREPO']
   myrevision = ENV['MYREVISION']
 
