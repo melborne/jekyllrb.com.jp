@@ -87,27 +87,6 @@ task :togglate do
   end
 end
 
-desc "compare file exsistence with site/docs in original BASE_REVISION"
-# args:
-#   rev: base rivision(ex: rev=master) default: master
-task :compare_docs do
-  revision = ENV['rev'] || 'master'
-
-  local_files = Dir.glob('docs/*').map { |f| File.basename(f) }
-  remote_files = Octokit.contents("#{GITHUB_USER}/#{GITHUB_REPOSITORY}", path:'site/docs', ref:"#{revision}").map(&:name)
-
-  added_files = remote_files - local_files
-  removed_files = local_files - remote_files
-
-  case
-  when [added_files, removed_files].all?(&:empty?)
-    # say nothing
-  else
-    puts "New files: #{added_files.join(', ')}"
-    puts "Removed files: #{removed_files.join(', ')}"
-  end
-end
-
 desc "jekyll syntax check (try jekyll build)"
 task :jekyll do
   # check jekyll command
@@ -164,7 +143,8 @@ task :create_issue do |x, args|
       fail "Only accept 'diff' or 'markdown'"
     end
 
-  Octokit.configure { |c| c.access_token = ENV['TOKEN'] }
+  github_auth(ENV['USERNAME'], ENV['PASSWORD'], ENV['TOKEN'])
+
   Octokit.create_issue(myrepo, cont[:title], cont[:body], labels:cont[:label])
   puts "Issue created successfully for #{path}"
   exit(0)
@@ -223,4 +203,16 @@ Original file created. Need to translate:
   EOS
   label = 'Original Created'
   { title:title, body:body, label:label }
+end
+
+def github_auth(username, password, token)
+  if token
+    Octokit.configure { |c| c.access_token = token }
+  else
+    Octokit.configure { |c| c.login = username; c.password = password }
+  end
+  Octokit.user
+rescue ::Octokit::Unauthorized
+  puts "Bad Credentials"
+  exit(1)
 end
